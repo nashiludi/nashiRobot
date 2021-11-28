@@ -2,7 +2,6 @@ const ytdl = require('ytdl-core');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const { getVoiceConnection, createAudioPlayer, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus } = require('@discordjs/voice');
-const { Interaction } = require('discord.js');
 
 module.exports = async function playNewSong (guildId, flag = null) {
     const songQueue = require(`${appDir}/vendor/songQueue`);

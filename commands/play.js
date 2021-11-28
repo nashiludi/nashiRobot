@@ -27,15 +27,6 @@ module.exports ={
                 res = true;
             }
         });
-        // await (async()=>{ // <-- Существует ли видео по ссылке.
-        //     try {
-        //         await ytdl.getInfo(url).then(()=>{
-        //             res = true;
-        //         });
-        //     } catch (e) {
-        //         res = false;
-        //     }
-        // })();
         if (LinkChecker.checkLink(url) && res) {
             songQueue[guildId].appendQueue(url);
             if (!getVoiceConnection(interaction.guild.id)) {
