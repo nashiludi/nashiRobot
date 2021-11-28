@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const Args = require(`${appDir}/vendor/Args`);
+const ytdl = require('ytdl-core');
 
 module.exports ={
     data: new SlashCommandBuilder()
@@ -35,9 +36,24 @@ module.exports ={
         await interaction.reply('Мур!');
         async function displayQueue(songQueue) {
             if (songQueue) {
+                const newSongQueue = [];
+                await Promise.all(songQueue.map(async (element, i) => {
+                    await ytdl.getInfo(element).then(response=>{
+                        let result = response.player_response.videoDetails.title;
+                        if(result.length>65){
+                            result = result.slice(0, 65);
+                            result = result.concat('...');
+                        }
+                        newSongQueue[i] = result;
+                    });
+                }));
                 var output = 'Что тут у нас... ```';
-                await songQueue.forEach((element, i) => {
-                    output = output.concat(`\n${i+1} | ${element}`);
+                await newSongQueue.forEach((element, i) => {
+                    if(i+1<10){
+                        output = output.concat(`\n${i+1} | ${element}`);
+                    } else {
+                        output = output.concat(`\n${i+1}| ${element}`);
+                    }
                     if(i==0) {
                         output = output.concat(' << ИГРАЕТ');
                     }
@@ -47,6 +63,7 @@ module.exports ={
             }
             return output;
         }
+
         // async function clearQueue(songQueue) {
         //     songQueue[guildId].clearQueue();
         //     await interaction.channel.send('Чистенько!');
