@@ -59,7 +59,6 @@ module.exports ={
                 });
                 output = output.concat('```');
                 await interaction.reply(output);
-                // await interaction.channel.send(output);
             }
             return output;
         }

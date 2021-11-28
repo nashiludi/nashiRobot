@@ -1,6 +1,4 @@
 const fs = require('fs');
-const { dirname } = require('path');
-const appDir = dirname(require.main.filename);
 
 function addEventEmitter (subject) {
 	const eventFiles = fs.readdirSync(`${appDir}/events`).filter(file => file.endsWith('.js'));

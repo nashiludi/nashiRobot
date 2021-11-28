@@ -4,7 +4,6 @@ const appDir = dirname(require.main.filename);
 const LinkChecker = require(`${appDir}/vendor/LinkChecker`);
 const playNewSong = require(`${appDir}/vendor/playNewSong`);
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
-const ytdl = require('ytdl-core');
 
 module.exports ={
     data: new SlashCommandBuilder()

@@ -7,7 +7,7 @@ const { Routes } = require('discord-api-types/v9');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 
-function deployCommands (guilds) {
+module.exports = function deployCommands (guilds) {
 	const commands = [];
 	const commandFiles = fs.readdirSync(`${appDir}/commands`).filter(file => file.endsWith('.js'));
 
@@ -47,5 +47,3 @@ function deployCommands (guilds) {
 		}
 	});
 }
-
-exports.deployCommands = deployCommands;

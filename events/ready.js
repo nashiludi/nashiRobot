@@ -1,6 +1,6 @@
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
-const { deployCommands } = require(`${appDir}/deploy-commands`);
+const deployCommands = require(`${appDir}/deploy-commands`);
 
 module.exports = {
     name: 'ready',

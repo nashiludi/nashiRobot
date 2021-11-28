@@ -1,10 +1,8 @@
 require('dotenv').config();
-const fs = require('fs');
 const token = process.env.DISCORD_TOKEN;
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const { client } = require(`${appDir}/vendor/client`);
-// const songQueue = require(`${appDir}/vendor/songQueue`);
 
 client.on('interactionCreate', async interaction => {
 	if (!interaction.isCommand()) return;
@@ -23,3 +21,7 @@ client.login(token);
 //TODO: (необязательно) Добавить классам ожидаемые значения
 
 //TODO: Добавить очистку эвент эммитеров от лисенеров
+
+//TODO: Добавить Logger
+
+//TODO: Поиск по ютубу
