@@ -33,7 +33,6 @@ module.exports ={
                     break;
             }
         });
-        await interaction.reply('Мур!');
         async function displayQueue(songQueue) {
             if (songQueue) {
                 const newSongQueue = [];
@@ -59,7 +58,8 @@ module.exports ={
                     }
                 });
                 output = output.concat('```');
-                await interaction.channel.send(output);
+                await interaction.reply(output);
+                // await interaction.channel.send(output);
             }
             return output;
         }
