@@ -22,7 +22,7 @@ client.login(token);
 
 //TODO: Добавить Logger
 
-//TODO: Рефактор. В queue хранятся не ссылки, а объекты song.
+//TODO: Рефактор. В queue хранятся не ссылки, а объекты song
 
 //TODO: Считывание информации для queue из getInfoYouTube
 
