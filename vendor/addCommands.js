@@ -1,5 +1,7 @@
 const fs = require('fs');
 const { Collection } = require('discord.js');
+const { dirname } = require('path');
+const appDir = dirname(require.main.filename);
 
 function addCommands (subject) {
     subject.commands = new Collection();
