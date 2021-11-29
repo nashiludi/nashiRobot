@@ -1,4 +1,5 @@
 const ytdl = require('ytdl-core');
+const playdl = require('play-dl');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const { getVoiceConnection, createAudioPlayer, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus } = require('@discordjs/voice');
@@ -9,11 +10,11 @@ module.exports = async function playNewSong (guildId, flag = null) {
     if (flag == 'skip') {
         if (songQueue[guildId].getQueue().length == 1) {
             songQueue[guildId].player.getPlayer().stop();
-            return;
+            return true;
         } else {
             songQueue[guildId].player.getPlayer().stop();
             playNewSong(guildId);
-            return;
+            return true;
         }
     }
     if (flag == 'stop') {
@@ -22,7 +23,7 @@ module.exports = async function playNewSong (guildId, flag = null) {
         songQueue[guildId].clearQueue();
         songQueue[guildId].player.deletePlayer();
         songQueue[guildId].player.setIdleState();
-        return;
+        return true;
     }
     const player = createAudioPlayer();
     player.on(AudioPlayerStatus.Playing, () => {
@@ -34,35 +35,37 @@ module.exports = async function playNewSong (guildId, flag = null) {
     console.log('playnewsong!');
     if (songQueue[guildId].player.getCurrentState() == 'idle') {
         const connection = getVoiceConnection(guildId);
-        var stream = ytdl(url, {filter: 'audioonly'});
-        const resource = createAudioResource(stream);
+        var stream = await playdl.stream(url);
+        let resource = createAudioResource(stream.stream, {
+            inputType : stream.type
+        })
         stream = undefined;
         connection.subscribe(player);
         player.play(resource);
         songQueue[guildId].player.setPlayer(player);
-    player.on(AudioPlayerStatus.Idle, () => {
-        songQueue[guildId].player.setIdleState();
-        if (songQueue[guildId].getQueue().length == 1) {
-            songQueue[guildId].shiftQueue();
-            return;
-        } else {
-            songQueue[guildId].shiftQueue();
-            playNewSong(guildId);
-            return;
-        }
-    });
-    connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
-        try {
-            await Promise.race([
-                entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-                entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-            ]);
-        } catch (error) {
-            connection.destroy();
+        player.on(AudioPlayerStatus.Idle, () => {
             songQueue[guildId].player.setIdleState();
-            songQueue[guildId].clearQueue();
-            return;
-        }
-    });
+            if (songQueue[guildId].getQueue().length == 1) {
+                songQueue[guildId].shiftQueue();
+                return true;
+            } else {
+                songQueue[guildId].shiftQueue();
+                playNewSong(guildId);
+                return true;
+            }
+        });
+        connection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
+            try {
+                await Promise.race([
+                    entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
+                    entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
+                ]);
+            } catch (error) {
+                connection.destroy();
+                songQueue[guildId].player.setIdleState();
+                songQueue[guildId].clearQueue();
+                return true;
+            }
+        });
     }
 }

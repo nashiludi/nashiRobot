@@ -1,6 +1,6 @@
 {
   "name": "ivanov",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,7 @@
     "node-addon-api": "^4.2.0",
     "node-gyp": "^8.4.0",
     "opusscript": "^0.0.8",
+    "play-dl": "^1.4.0",
     "sodium": "^3.0.2",
     "tweetnacl": "^1.0.3",
     "ytdl-core": "^4.9.1"

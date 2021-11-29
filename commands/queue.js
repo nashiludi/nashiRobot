@@ -17,7 +17,7 @@ module.exports ={
         var guildId = interaction.guild.id;
         if (songQueue[guildId].getQueue().length == 0) {
             await interaction.reply('Очередь пуста!');
-            return;
+            return true;
         }
         var args = Args.getArgsForQueue(interaction.options.getString('параметры'));
 
