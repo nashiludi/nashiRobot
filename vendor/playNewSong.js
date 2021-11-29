@@ -28,6 +28,9 @@ module.exports = async function playNewSong (guildId, flag = null) {
     player.on(AudioPlayerStatus.Playing, () => {
         songQueue[guildId].player.setPlayingState();
     });
+    player.on('error', () => {
+        playNewSong(guildId, 'skip');
+    });
     console.log('playnewsong!');
     if (songQueue[guildId].player.getCurrentState() == 'idle') {
         const connection = getVoiceConnection(guildId);

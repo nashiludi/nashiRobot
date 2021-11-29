@@ -21,18 +21,30 @@ module.exports ={
             } else {
                 var requestedSong = songQueue[guildId].getQueueFirstElement();
             }
-            function secsToTime(length) {
-                const hours = Math.floor(length / 3600);
-                const mins = Math.floor(length / 60) - (hours * 60);
-                const secs = length - (hours * 3600) - (mins * 60);
-                return `${hours}:${mins}:${secs}`;
+            function getFormattedTime(length1, length2) {
+                function secsToTime(length) {
+                    const hours = Math.floor(length / 3600);
+                    const mins = Math.floor(length / 60) - (hours * 60);
+                    const secs = length - (hours * 3600) - (mins * 60);
+                    return [hours, mins, secs];
+                }
+                function getFormattedNum(num) {
+                    return num < 10 ? `0${num}` : `${num}`;
+                }
+                const secsToTimeResult1 = secsToTime(length1);
+                const secsToTimeResult2 = secsToTime(length2);
+                if (secsToTimeResult2[0] == 0) {
+                    return `${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                } else if (secsToTimeResult2[0] < 10) {
+                    return `${getFormattedNum(secsToTimeResult1[0])}:${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[0])}:${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                }
             }
             var output;
             await ytdl.getInfo(requestedSong).then(response=>{
                 output =
                     `<https://youtu.be/${response.player_response.videoDetails.videoId}>\n` +
                     '```' + `Название: ${response.player_response.videoDetails.title}\n` +
-                    `Длина: ${secsToTime(response.player_response.videoDetails.lengthSeconds)}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), response.player_response.videoDetails.lengthSeconds)}\n` +
                     `Автор: ${response.player_response.videoDetails.author}\n` +
                     `Просмотров: ${response.player_response.videoDetails.viewCount}\n` +
                     `Описание:\n` +
