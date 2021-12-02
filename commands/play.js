@@ -5,6 +5,7 @@ const LinkChecker = require(`${appDir}/vendor/LinkChecker`);
 const playNewSong = require(`${appDir}/vendor/playNewSong`);
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
 const getInfoYouTube = require(`${appDir}/vendor/getInfoYouTube`);
+const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports ={
     data: new SlashCommandBuilder()
@@ -16,16 +17,16 @@ module.exports ={
                 .setRequired(true)),
     async execute(interaction){
         const songQueue = require(`${appDir}/vendor/songQueue`);
-        console.log('play!');
         const guildId = interaction.guild.id;
+        const songName = interaction.options.getString('трек');
         if (songQueue[guildId].getQueue().length >= 99) {
             await interaction.reply('Очередь переполнена!');
+            Logger.log(`Play '${songName}': discard.`, interaction);
             return true;
         }
-        const songName = interaction.options.getString('трек');
         var song = await getInfoYouTube(songName);
         if (song.length != 0) {
-            await songQueue[guildId].appendQueue(song[0].url);
+            await songQueue[guildId].appendQueue(song[0]);
             if (!getVoiceConnection(interaction.guild.id)) {
                 try {
                     var connection = joinVoiceChannel({
@@ -36,18 +37,21 @@ module.exports ={
                 } catch (e) {
                     if (e instanceof TypeError) {
                         interaction.reply('А куда играть-то?!');
+                        Logger.log('Play: failure.', interaction);
                         return false;
                     } else {
-                    console.error(e)
-                    return false;
+                        Logger.error(e, interaction)
+                        return false;
                     }
                 }
             }
-            playNewSong(guildId);
-            interaction.reply(`\`\`\`Начал проигрывание ${song[0].title}\`\`\``);
+            playNewSong(interaction);
+            Logger.log(`Play '${songName}': success.`, interaction);
+            interaction.reply(`\`\`\`Добавил в очередь: ${song[0].title}\`\`\``);
         } else {
             interaction.reply('Кошмаришь меня?!');
-            return false;
+            Logger.log(`Play '${songName}': failure.`, interaction);
+            return true;
         }
     }
 }

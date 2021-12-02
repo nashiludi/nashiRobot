@@ -3,6 +3,7 @@ const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const Args = require(`${appDir}/vendor/Args`);
 const ytdl = require('ytdl-core');
+const getInfoYouTube = require(`${appDir}/vendor/getInfoYouTube`);
 
 module.exports ={
     data: new SlashCommandBuilder()
@@ -36,16 +37,14 @@ module.exports ={
         async function displayQueue(songQueue) {
             if (songQueue) {
                 const newSongQueue = [];
-                await Promise.all(songQueue.map(async (element, i) => {
-                    await ytdl.getInfo(element).then(response=>{
-                        let result = response.player_response.videoDetails.title;
-                        if(result.length>65){
-                            result = result.slice(0, 65);
-                            result = result.concat('...');
-                        }
-                        newSongQueue[i] = result;
-                    });
-                }));
+                songQueue.forEach((element, i) => {
+                    let result = element.title;
+                    if(result.length>65){
+                        result = result.slice(0, 65);
+                        result = result.concat('...');
+                    }
+                    newSongQueue[i] = result;
+                });
                 var output = 'Что тут у нас... ```';
                 await newSongQueue.forEach((element, i) => {
                     if(i+1<10){

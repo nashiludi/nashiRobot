@@ -40,7 +40,7 @@ module.exports ={
                 }
             }
             var output;
-            await ytdl.getInfo(requestedSong).then(response=>{
+            await ytdl.getInfo(requestedSong).then(response=>{ // TODO: replace.
                 output =
                     `<https://youtu.be/${response.player_response.videoDetails.videoId}>\n` +
                     '```' + `Название: ${response.player_response.videoDetails.title}\n` +
@@ -48,7 +48,7 @@ module.exports ={
                     `Автор: ${response.player_response.videoDetails.author}\n` +
                     `Просмотров: ${response.player_response.videoDetails.viewCount}\n` +
                     `Описание:\n` +
-                    `${response.player_response.videoDetails.shortDescription}` +
+                    `${response.player_response.videoDetails.shortDescription.length <= 1000 ? response.player_response.videoDetails.shortDescription : response.player_response.videoDetails.shortDescription.substring(0, 1000).concat('...')}\n` +
                     '```';
                 output = output.replace(/discord[.](gg|io|me|li|com|net|new|gift|gifts|media)[\/]/gmiu, (match)=>{
                     return match.replace(/(gg|io|me|li|com|net|new|gift|gifts|media)/gmiu, 'nashi');

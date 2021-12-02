@@ -6,12 +6,10 @@ module.exports = class Player {
     }
     setIdleState(){
         this.currentState = 'idle';
-        console.log('|||||||||||||||||||||| IDLE  STATE! ||||||||||||||||||||||');
         return true;
     }
     setPlayingState(){
         this.currentState = 'playing';
-        console.log('||||||||||||||||||||||PLAYING STATE!||||||||||||||||||||||');
         return true;
     }
     setPlayer(player){

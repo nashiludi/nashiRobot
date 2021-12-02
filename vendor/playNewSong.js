@@ -3,17 +3,21 @@ const playdl = require('play-dl');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const { getVoiceConnection, createAudioPlayer, createAudioResource, VoiceConnectionStatus, AudioPlayerStatus } = require('@discordjs/voice');
+const Logger = require(`${appDir}/vendor/Logger`);
+const getInfoYouTube = require(`${appDir}/vendor/getInfoYouTube`);
 
-module.exports = async function playNewSong (guildId, flag = null) {
+module.exports = async function playNewSong (interaction, flag = null) {
+    const guildId = interaction.guild.id;
     const songQueue = require(`${appDir}/vendor/songQueue`);
-    const url = songQueue[guildId].getQueueFirstElement();
+    const song = songQueue[guildId].getQueueFirstElement(); 
+    const url = song.url;
     if (flag == 'skip') {
         if (songQueue[guildId].getQueue().length == 1) {
             songQueue[guildId].player.getPlayer().stop();
             return true;
         } else {
             songQueue[guildId].player.getPlayer().stop();
-            playNewSong(guildId);
+            playNewSong(interaction);
             return true;
         }
     }
@@ -30,9 +34,9 @@ module.exports = async function playNewSong (guildId, flag = null) {
         songQueue[guildId].player.setPlayingState();
     });
     player.on('error', () => {
-        playNewSong(guildId, 'skip');
+        playNewSong(interaction, 'skip');
     });
-    console.log('playnewsong!');
+    Logger.log(`Playing a new song: ${song.title}.`, interaction);
     if (songQueue[guildId].player.getCurrentState() == 'idle') {
         const connection = getVoiceConnection(guildId);
         var stream = await playdl.stream(url);
@@ -50,7 +54,7 @@ module.exports = async function playNewSong (guildId, flag = null) {
                 return true;
             } else {
                 songQueue[guildId].shiftQueue();
-                playNewSong(guildId);
+                playNewSong(interaction);
                 return true;
             }
         });

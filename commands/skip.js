@@ -13,7 +13,7 @@ module.exports ={
         const { getVoiceConnection } = require('@discordjs/voice');
         const connection = getVoiceConnection(guildId);
         if (songQueue[guildId].player.getCurrentState() == 'playing') {
-            playNewSong(guildId, 'skip');
+            playNewSong(interaction, 'skip');
             interaction.reply('Мур!');
         } else {
             interaction.reply('Мур! Чё надо? Мямяу!');

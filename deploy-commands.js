@@ -6,6 +6,7 @@ const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
+const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports = function deployCommands (guilds) {
 	const commands = [];
@@ -23,15 +24,15 @@ module.exports = function deployCommands (guilds) {
 	let successes = 0;
 	guilds.forEach(async guildId => {
 		promise = promise.then(function () {
-			console.log(`Попытка высадить команды на сервере: ${guildId}...`);
+			Logger.log(`Попытка высадить команды на сервере: ${guildId}...`);
 			attempts++;
 			rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
 				.then(() => {
-					console.log('Успешно!');
+					Logger.log('Успешно!');
 					successes++;
 				})
 				.catch((error)=>{
-					console.error(error);
+					Logger.error(error);
 					errors.push(guildId);
 				});
 			return new Promise(function (resolve) {
@@ -41,9 +42,9 @@ module.exports = function deployCommands (guilds) {
 	});
 	promise.then(function () {
 		if (errors.length == 0) {
-			console.log(`Высадка на ${successes} из ${attempts} серверов успешна!`);
+			Logger.log(`Высадка на ${successes} из ${attempts} серверов успешна!`);
 		} else {
-			console.log(`Высадка провалилась на серверах: ${errors}`);
+			Logger.log(`Высадка провалилась на серверах: ${errors}`);
 		}
 	});
 }
