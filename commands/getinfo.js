@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const ytdl = require('ytdl-core');
+const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports ={
     data: new SlashCommandBuilder()
@@ -39,20 +40,19 @@ module.exports ={
                     return `${getFormattedNum(secsToTimeResult1[0])}:${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[0])}:${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
                 }
             }
-            var output;
-            await ytdl.getInfo(requestedSong).then(response=>{ // TODO: replace.
-                output =
-                    `<https://youtu.be/${response.player_response.videoDetails.videoId}>\n` +
-                    '```' + `Название: ${response.player_response.videoDetails.title}\n` +
-                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), response.player_response.videoDetails.lengthSeconds)}\n` +
-                    `Автор: ${response.player_response.videoDetails.author}\n` +
-                    `Просмотров: ${response.player_response.videoDetails.viewCount}\n` +
-                    `Описание:\n` +
-                    `${response.player_response.videoDetails.shortDescription.length <= 1000 ? response.player_response.videoDetails.shortDescription : response.player_response.videoDetails.shortDescription.substring(0, 1000).concat('...')}\n` +
-                    '```';
-                output = output.replace(/discord[.](gg|io|me|li|com|net|new|gift|gifts|media)[\/]/gmiu, (match)=>{
-                    return match.replace(/(gg|io|me|li|com|net|new|gift|gifts|media)/gmiu, 'nashi');
-                });
+            var output =
+                `<https://youtu.be/${requestedSong.id}>\n` +
+                '```' + `Название: ${requestedSong.title}\n` +
+                `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec)}\n` +
+                `Автор: ${requestedSong.channel.name}\n` +
+                `Просмотров: ${requestedSong.views}\n` +
+                `Описание:\n`;
+            if (requestedSong.description.length > 0) {
+                output = output.concat(`${requestedSong.description.length <= 1000 ? requestedSong.description : requestedSong.description.substring(0, 1000).concat('...')}\n`);
+            }
+            output = output.concat('```');
+            output = output.replace(/discord[.](gg|io|me|li|com|net|new|gift|gifts|media)[\/]/gmiu, (match)=>{
+                return match.replace(/(gg|io|me|li|com|net|new|gift|gifts|media)/gmiu, 'nashi');
             });
             interaction.reply(output);
         } else {

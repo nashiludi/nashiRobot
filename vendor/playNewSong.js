@@ -22,11 +22,13 @@ module.exports = async function playNewSong (interaction, flag = null) {
         }
     }
     if (flag == 'stop') {
-        songQueue[guildId].player.getPlayer().removeAllListeners()
-        songQueue[guildId].player.getPlayer().stop();
+        if (songQueue[guildId].player.getPlayer() != null) {
+            songQueue[guildId].player.getPlayer().removeAllListeners()
+            songQueue[guildId].player.getPlayer().stop();
+            songQueue[guildId].player.deletePlayer();
+            songQueue[guildId].player.setIdleState();
+        }
         songQueue[guildId].clearQueue();
-        songQueue[guildId].player.deletePlayer();
-        songQueue[guildId].player.setIdleState();
         return true;
     }
     const player = createAudioPlayer();
@@ -39,7 +41,14 @@ module.exports = async function playNewSong (interaction, flag = null) {
     Logger.log(`Playing a new song: ${song.title}.`, interaction);
     if (songQueue[guildId].player.getCurrentState() == 'idle') {
         const connection = getVoiceConnection(guildId);
-        var stream = await playdl.stream(url);
+        try {
+            var stream = await playdl.stream(url);
+        } catch (e) {
+            playNewSong(interaction, 'stop');
+            interaction.channel.send('Ошибка! Иванов потерял паспорт и не может воспроизвести видео для взрослых и жителей других стран! Напомните ему завести новый!');
+            Logger.error('PlayNewSong - ' + e);
+            return false;
+        }
         let resource = createAudioResource(stream.stream, {
             inputType : stream.type
         })

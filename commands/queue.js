@@ -4,6 +4,7 @@ const appDir = dirname(require.main.filename);
 const Args = require(`${appDir}/vendor/Args`);
 const ytdl = require('ytdl-core');
 const getInfoYouTube = require(`${appDir}/vendor/getInfoYouTube`);
+const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports ={
     data: new SlashCommandBuilder()
@@ -35,6 +36,7 @@ module.exports ={
             }
         });
         async function displayQueue(songQueue) {
+            // Logger.log(JSON.stringify(songQueue));
             if (songQueue) {
                 const newSongQueue = [];
                 songQueue.forEach((element, i) => {

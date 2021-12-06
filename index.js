@@ -21,6 +21,6 @@ client.on('interactionCreate', async interaction => {
 
 client.login(token);
 
-//TODO: (необязательно) Добавить классам ожидаемые значения
+//TODO: (необязательно) Перейти на TS
 
 //TODO: Добавить эмбеды
