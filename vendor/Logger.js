@@ -32,11 +32,8 @@ module.exports = class Logger {
     }
 
     static consoleError(error, interaction = null) {
-        if (prod !== 'TRUE') {
-            console.log(Logger._LogError(error, interaction));
-            return true;
-        }
-        return false;
+        console.log(Logger._LogError(error, interaction));
+        return true;
     }
 
     static async fileLog(info, interaction = null) {
@@ -52,7 +49,7 @@ module.exports = class Logger {
     }
 
     static async fileError(error, interaction = null) {
-        if ((prod !== 'TRUE') && fs.existsSync(`${appDir}\\logs`)) {
+        if (fs.existsSync(`${appDir}\\logs`)) {
             const currentDate = new Date();
             let date = ("0" + currentDate.getDate()).slice(-2);
             let month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
@@ -73,11 +70,8 @@ module.exports = class Logger {
     }
 
     static error(error, interaction = null) {
-        if (prod !== 'TRUE') {
-            Logger.consoleError(error, interaction);
-            Logger.fileError(error, interaction);
-            return true;
-        }
-        return false;
+        Logger.consoleError(error, interaction);
+        Logger.fileError(error, interaction);
+        return true;
     }
 }

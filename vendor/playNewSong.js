@@ -74,10 +74,14 @@ module.exports = async function playNewSong (interaction, flag = null) {
                     entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
                 ]);
             } catch (error) {
-                connection.destroy();
-                songQueue[guildId].player.setIdleState();
-                songQueue[guildId].clearQueue();
-                return true;
+                try {
+                    connection.destroy();
+                    songQueue[guildId].player.setIdleState();
+                    songQueue[guildId].clearQueue();
+                    return true;
+                } catch (e) {
+                    Logger.error(e);
+                }
             }
         });
     }
