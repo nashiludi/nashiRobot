@@ -6,7 +6,7 @@ module.exports = function queuesSetup (client) {
     const guilds = client.guilds.cache.map(guild => guild.id);
     const queues = {};
     guilds.forEach(element => {
-        queues[element] = new Queue;
+        queues[element] = new Queue(element);
     });
     return queues;
 }

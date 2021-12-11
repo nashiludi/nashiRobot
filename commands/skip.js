@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
-const playNewSong = require(`${appDir}/vendor/playNewSong`);
 
 module.exports ={
     data: new SlashCommandBuilder()
@@ -13,10 +12,11 @@ module.exports ={
         const { getVoiceConnection } = require('@discordjs/voice');
         const connection = getVoiceConnection(guildId);
         if (songQueue[guildId].player.getCurrentState() == 'playing') {
-            playNewSong(interaction, 'skip');
+            songQueue[guildId].player.skipSong(interaction);
             interaction.reply('Мур!');
         } else {
             interaction.reply('Мур! Чё надо? Мямяу!');
         }
+        return true;
     }
 }

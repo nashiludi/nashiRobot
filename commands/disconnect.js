@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
-const playNewSong = require(`${appDir}/vendor/playNewSong`);
 const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports ={
@@ -15,7 +14,7 @@ module.exports ={
         if (connection) {
             const songQueue = require(`${appDir}/vendor/songQueue`);
             if (songQueue[guildId].player.getCurrentState() == 'playing') {
-                await playNewSong(interaction, 'stop');
+                songQueue[guildId].player.stopPlayer(interaction);
             }
             interaction.reply('Мур!');
             connection.destroy();

@@ -2,7 +2,6 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const LinkChecker = require(`${appDir}/vendor/LinkChecker`);
-const playNewSong = require(`${appDir}/vendor/playNewSong`);
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
 const getInfoYouTube = require(`${appDir}/vendor/getInfoYouTube`);
 const Logger = require(`${appDir}/vendor/Logger`);
@@ -45,7 +44,7 @@ module.exports ={
                     }
                 }
             }
-            playNewSong(interaction);
+            songQueue[guildId].player.playNewSong(interaction);
             Logger.log(`Play '${songName}': success.`, interaction);
             interaction.reply(`\`\`\`Добавил в очередь: ${song[0].title}\`\`\``);
         } else {

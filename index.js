@@ -15,6 +15,7 @@ client.on('interactionCreate', async interaction => {
 		await command.execute(interaction);
 	} catch (error) {
 		Logger.error(error, interaction);
+		console.error(error);
 		await interaction.reply({ content: 'Ошибка при выполнении команды!', ephemeral: true });
 	}
 });

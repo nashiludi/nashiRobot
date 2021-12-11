@@ -1,10 +1,12 @@
 const Player = require('./Player');
 
 module.exports = class Queue {
-
+    constructor(guildId) {
+        this.guildId = guildId;
+    }
     queue = [];
     params = [];
-    player = new Player();
+    player = new Player(this.guildId);
 
     getQueue(){
         return this.queue;
