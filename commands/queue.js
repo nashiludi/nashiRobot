@@ -2,8 +2,6 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 const Args = require(`${appDir}/vendor/Args`);
-const ytdl = require('ytdl-core');
-const getInfoYouTube = require(`${appDir}/vendor/getInfoYouTube`);
 const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports ={
@@ -17,6 +15,7 @@ module.exports ={
     async execute(interaction){
         const songQueue = require(`${appDir}/vendor/songQueue`);
         var guildId = interaction.guild.id;
+        console.log(songQueue[guildId].getQueue());
         if (songQueue[guildId].getQueue().length == 0) {
             await interaction.reply('Очередь пуста!');
             return true;
@@ -40,7 +39,12 @@ module.exports ={
             if (songQueue) {
                 const newSongQueue = [];
                 songQueue.forEach((element, i) => {
-                    let result = element.title;
+                    let result;
+                    if (element.origTitle) {
+                        result = element.origTitle;
+                    } else {
+                        result = element.title;
+                    }
                     if(result.length>65){
                         result = result.slice(0, 65);
                         result = result.concat('...');
@@ -48,10 +52,15 @@ module.exports ={
                     newSongQueue[i] = result;
                 });
                 var output = 'Что тут у нас... ```';
+                var shouldContinue = true;
                 await newSongQueue.forEach((element, i) => {
-                    if(i+1<10){
+                    if(output.length>1900 && shouldContinue){
+                        output = output.concat(`\n...`);
+                        shouldContinue = false;
+                    }
+                    if(i+1<10 && shouldContinue){
                         output = output.concat(`\n${i+1} | ${element}`);
-                    } else {
+                    } else if (shouldContinue){
                         output = output.concat(`\n${i+1}| ${element}`);
                     }
                     if(i==0) {

@@ -32,7 +32,7 @@ module.exports = class Logger {
     }
 
     static consoleError(error, interaction = null) {
-        console.log(Logger._LogError(error, interaction));
+        console.error(Logger._LogError(error, interaction));
         return true;
     }
 

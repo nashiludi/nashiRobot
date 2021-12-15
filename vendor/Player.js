@@ -52,13 +52,13 @@ module.exports = class Player {
                 var stream = await playdl.stream(url);
             } catch (e) {
                 this.playNewSong(interaction, 'stop');
-                interaction.channel.send('Ошибка! Иванов потерял паспорт и не может воспроизвести видео для взрослых и жителей других стран! Напомните ему завести новый!');
+                interaction.channel.send('Ошибка! Иванов потерял паспорт и не может воспроизвести песню для взрослых и жителей других стран! Напомните ему завести новый!');
                 Logger.error('PlayNewSong - ' + e);
                 return false;
             }
             let resource = createAudioResource(stream.stream, {
                 inputType : stream.type
-            })
+            });
             stream = undefined;
             connection.subscribe(player);
             player.play(resource);
@@ -106,7 +106,7 @@ module.exports = class Player {
         const guildId = interaction.guild.id;
         const songQueue = require(`${appDir}/vendor/songQueue`);
         if (this.getPlayer() != null) {
-            this.getPlayer().removeAllListeners()
+            this.getPlayer().removeAllListeners();
             this.getPlayer().stop();
             this.deletePlayer();
             this.setIdleState();

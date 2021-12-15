@@ -5,15 +5,15 @@ const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
 const GetInfo = require(`${appDir}/vendor/GetInfo`);
 const Logger = require(`${appDir}/vendor/Logger`);
 
-module.exports ={
-    data: new SlashCommandBuilder()
-        .setName('play')
-        .setDescription('Сыграть песню')
+module.exports = {
+	data: new SlashCommandBuilder()
+        .setName('sp')
+        .setDescription('Сыграть песню из Spotify')
         .addStringOption(option =>
             option.setName('трек')
                 .setDescription('ссылка/название трека!')
                 .setRequired(true)),
-    async execute(interaction){
+	async execute(interaction) {
         const songQueue = require(`${appDir}/vendor/songQueue`);
         const guildId = interaction.guild.id;
         const songName = interaction.options.getString('трек');
@@ -22,13 +22,20 @@ module.exports ={
             Logger.log(`Play '${songName}': discard.`, interaction);
             return true;
         }
-        var song = await GetInfo.getInfoYouTube(songName);
-        if (song.length != 0) {
-            await songQueue[guildId].appendQueue(song[0]);
+        var song = await GetInfo.spotifyJob(songName);
+        if (song) {
+            let interactionReplyText;
+            if (song.type == 'track') {
+                interactionReplyText = `\`\`\`Добавил в очередь: ${song.data.origTitle}\`\`\``;
+                await songQueue[guildId].appendQueue(song.data);
+            } else if (song.type == 'playlist' || song.type == 'album') {
+                interactionReplyText = `\`\`\`Добавил в очередь: ${song.data[0].primaryTitle}\`\`\``;
+                await songQueue[guildId].appendQueueWithArray(song.data);
+            }
             setVoiceConnection(interaction);
             songQueue[guildId].player.playNewSong(interaction);
             Logger.log(`Play '${songName}': success.`, interaction);
-            interaction.reply(`\`\`\`Добавил в очередь: ${song[0].title}\`\`\``);
+            interaction.reply(interactionReplyText);
         } else {
             interaction.reply('Кошмаришь меня?!');
             Logger.log(`Play '${songName}': failure.`, interaction);
@@ -54,6 +61,5 @@ module.exports ={
                 }
             }
         }
-
-    }
-}
+	},
+};

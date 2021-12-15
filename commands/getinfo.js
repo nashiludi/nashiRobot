@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
-const ytdl = require('ytdl-core');
 const Logger = require(`${appDir}/vendor/Logger`);
 
 module.exports ={
@@ -40,15 +39,27 @@ module.exports ={
                     return `${getFormattedNum(secsToTimeResult1[0])}:${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[0])}:${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
                 }
             }
-            var output =
-                `<https://youtu.be/${requestedSong.id}>\n` +
-                '```' + `Название: ${requestedSong.title}\n` +
-                `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec)}\n` +
-                `Автор: ${requestedSong.channel.name}\n` +
-                `Просмотров: ${requestedSong.views}\n` +
-                `Описание:\n`;
-            if (requestedSong.description.length > 0) {
-                output = output.concat(`${requestedSong.description.length <= 1000 ? requestedSong.description : requestedSong.description.substring(0, 1000).concat('...')}\n`);
+            if (requestedSong.primaryType) {
+                var output =
+                    `<${requestedSong.origUrl}}>\n` +
+                    `${requestedSong.primaryType == 'track' ? '' : '<' + requestedSong.primaryUrl + '>\n'}` +
+                    `<https://youtu.be/${requestedSong.id}>\n` +
+                    '```' + `Название: ${requestedSong.origTitle}\n` +
+                    `${requestedSong.primaryType == 'track' ? '' : (requestedSong.primaryType == 'album' ? 'Альбом: ' : 'Плейлист: ') + requestedSong.primaryTitle + '\n'}` +
+                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec)}\n` +
+                    `${requestedSong.origArtist ? 'Исполнитель: ' + requestedSong.origArtist + '\n' : ''}`;
+                    if (requestedSong.primaryType) output = output.concat(`${requestedSong.primaryType == 'track' ? '' : 'Автор: ' + requestedSong.primaryArtist + '\n'}`);
+            } else {
+                var output =
+                    `<https://youtu.be/${requestedSong.id}>\n` +
+                    '```' + `Название: ${requestedSong.title}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec)}\n` +
+                    `Автор: ${requestedSong.channel.name}\n` +
+                    `Просмотров: ${requestedSong.views}\n` +
+                    `Описание:\n`;
+                if (requestedSong.description.length > 0) {
+                    output = output.concat(`${requestedSong.description.length <= 1000 ? requestedSong.description : requestedSong.description.substring(0, 1000).concat('...')}\n`);
+                }
             }
             output = output.concat('```');
             output = output.replace(/discord[.](gg|io|me|li|com|net|new|gift|gifts|media)[\/]/gmiu, (match)=>{
