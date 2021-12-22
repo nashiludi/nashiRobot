@@ -15,9 +15,8 @@ module.exports ={
     async execute(interaction){
         const songQueue = require(`${appDir}/vendor/songQueue`);
         var guildId = interaction.guild.id;
-        console.log(songQueue[guildId].getQueue());
         if (songQueue[guildId].getQueue().length == 0) {
-            await interaction.reply('Очередь пуста!');
+            interaction.reply('Очередь пуста!');
             return true;
         }
         var args = Args.getArgsForQueue(interaction.options.getString('параметры'));
@@ -42,6 +41,8 @@ module.exports ={
                     let result;
                     if (element.origTitle) {
                         result = element.origTitle;
+                    } else if (element.name) {
+                        result = element.name;
                     } else {
                         result = element.title;
                     }
@@ -53,12 +54,11 @@ module.exports ={
                 });
                 var output = 'Что тут у нас... ```';
                 var shouldContinue = true;
-                await newSongQueue.forEach((element, i) => {
+                newSongQueue.forEach((element, i) => {
                     if(output.length>1900 && shouldContinue){
                         output = output.concat(`\n...`);
                         shouldContinue = false;
-                    }
-                    if(i+1<10 && shouldContinue){
+                    } else if(i+1<10 && shouldContinue){
                         output = output.concat(`\n${i+1} | ${element}`);
                     } else if (shouldContinue){
                         output = output.concat(`\n${i+1}| ${element}`);
@@ -68,9 +68,9 @@ module.exports ={
                     }
                 });
                 output = output.concat('```');
-                await interaction.reply(output);
+                interaction.reply(output);
             }
-            return output;
+            return true;
         }
 
         // async function clearQueue(songQueue) {

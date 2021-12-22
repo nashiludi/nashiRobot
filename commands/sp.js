@@ -18,10 +18,11 @@ module.exports = {
         const guildId = interaction.guild.id;
         const songName = interaction.options.getString('трек');
         if (songQueue[guildId].getQueue().length >= 999) {
-            await interaction.reply('Очередь переполнена!');
+            interaction.reply('Очередь переполнена!');
             Logger.log(`Play '${songName}': discard.`, interaction);
             return true;
         }
+        interaction.reply(`\`\`\`Я услышал ваших!\`\`\``);
         var song = await GetInfo.spotifyJob(songName);
         if (song) {
             let interactionReplyText;
@@ -35,9 +36,10 @@ module.exports = {
             setVoiceConnection(interaction);
             songQueue[guildId].player.playNewSong(interaction);
             Logger.log(`Play '${songName}': success.`, interaction);
-            interaction.reply(interactionReplyText);
+            interaction.channel.send(interactionReplyText);
+            return true;
         } else {
-            interaction.reply('Кошмаришь меня?!');
+            interaction.channel.send('Кошмаришь меня?!');
             Logger.log(`Play '${songName}': failure.`, interaction);
             return true;
         }
@@ -51,7 +53,7 @@ module.exports = {
                     });
                 } catch (e) {
                     if (e instanceof TypeError) {
-                        interaction.reply('А куда играть-то?!');
+                        interaction.channel.send('А куда играть-то?!');
                         Logger.log('Play: failure.', interaction);
                         return false;
                     } else {

@@ -15,13 +15,16 @@ module.exports ={
         const guildId = interaction.guild.id;
         const songQueue = require(`${appDir}/vendor/songQueue`);
         const queueNumber = interaction.options.getInteger('номер')-1;
+        let shouldShowDuration = false;
         if (songQueue[guildId].player.getCurrentState() == 'playing') {
             if (songQueue[guildId].getQueue()[queueNumber]) {
                 var requestedSong = songQueue[guildId].getQueue()[queueNumber];
+                if (queueNumber == 0) shouldShowDuration = true;
             } else {
                 var requestedSong = songQueue[guildId].getQueueFirstElement();
+                shouldShowDuration = true;
             }
-            function getFormattedTime(length1, length2) {
+            function getFormattedTime(length1, length2, shouldShowDuration) {
                 function secsToTime(length) {
                     const hours = Math.floor(length / 3600);
                     const mins = Math.floor(length / 60) - (hours * 60);
@@ -33,10 +36,18 @@ module.exports ={
                 }
                 const secsToTimeResult1 = secsToTime(length1);
                 const secsToTimeResult2 = secsToTime(length2);
-                if (secsToTimeResult2[0] == 0) {
-                    return `${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
-                } else if (secsToTimeResult2[0] < 10) {
-                    return `${getFormattedNum(secsToTimeResult1[0])}:${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[0])}:${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                if (shouldShowDuration) {
+                    if (secsToTimeResult2[0] == 0) {
+                        return `${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                    } else if (secsToTimeResult2[0] < 10) {
+                        return `${getFormattedNum(secsToTimeResult1[0])}:${getFormattedNum(secsToTimeResult1[1])}:${getFormattedNum(secsToTimeResult1[2])}/${getFormattedNum(secsToTimeResult2[0])}:${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                    }
+                } else {
+                    if (secsToTimeResult2[0] == 0) {
+                        return `${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                    } else if (secsToTimeResult2[0] < 10) {
+                        return `${getFormattedNum(secsToTimeResult2[0])}:${getFormattedNum(secsToTimeResult2[1])}:${getFormattedNum(secsToTimeResult2[2])}`;
+                    }
                 }
             }
             if (requestedSong.primaryType) {
@@ -46,14 +57,23 @@ module.exports ={
                     `<https://youtu.be/${requestedSong.id}>\n` +
                     '```' + `Название: ${requestedSong.origTitle}\n` +
                     `${requestedSong.primaryType == 'track' ? '' : (requestedSong.primaryType == 'album' ? 'Альбом: ' : 'Плейлист: ') + requestedSong.primaryTitle + '\n'}` +
-                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec)}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
                     `${requestedSong.origArtist ? 'Исполнитель: ' + requestedSong.origArtist + '\n' : ''}`;
                     if (requestedSong.primaryType) output = output.concat(`${requestedSong.primaryType == 'track' ? '' : 'Автор: ' + requestedSong.primaryArtist + '\n'}`);
+            } else if (requestedSong.name) {
+                var output =
+                    (requestedSong.origArtistUrl ? `<${requestedSong.origArtistUrl}>\n` : '') +
+                    (requestedSong.user.url ? `<${requestedSong.user.url}>\n` : '') +
+                    '```' + `Название: ${requestedSong.name}\n` +
+                    `${requestedSong.primaryTypeSC == 'track' ? '' : (requestedSong.primaryTypeSC == 'album' ? 'Альбом: ' : 'Плейлист: ') + requestedSong.origTitleSC + '\n'}` +
+                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
+                    (requestedSong.user.name ? `Исполнитель: ${requestedSong.user.name}\n` : '') +
+                    (requestedSong.origArtist ? `Автор: ${requestedSong.origArtist}\n` : '');
             } else {
                 var output =
                     `<https://youtu.be/${requestedSong.id}>\n` +
                     '```' + `Название: ${requestedSong.title}\n` +
-                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec)}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
                     `Автор: ${requestedSong.channel.name}\n` +
                     `Просмотров: ${requestedSong.views}\n` +
                     `Описание:\n`;
@@ -66,8 +86,10 @@ module.exports ={
                 return match.replace(/(gg|io|me|li|com|net|new|gift|gifts|media)/gmiu, 'nashi');
             });
             interaction.reply(output);
+            return true;
         } else {
             interaction.reply('Мур! Чё надо? Мямяу!');
+            return true;
         }
     }
 }

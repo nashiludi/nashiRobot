@@ -45,7 +45,7 @@ module.exports = class Player {
             this.playNewSong(interaction, 'skip');
             this.skipSong(interaction);
         });
-        Logger.log(`Playing a new song: ${song.title}.`, interaction);
+        Logger.log(`Playing a new song: ${song.name ?? song.title}.`, interaction);
         if (this.getCurrentState() == 'idle') {
             const connection = getVoiceConnection(guildId);
             try {

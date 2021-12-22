@@ -5,6 +5,88 @@ module.exports = class GetInfo {
         const result = await playdl.search(title, { limit : 1 });
         return result;
     }
+
+    static async getInfoSoundCloud(title, type = false) {
+        const validate = await playdl.so_validate(title);
+        if (!type) {
+            switch (validate) {
+                case 'track':
+                    return await this.formatSoundCloud(await playdl.soundcloud(title), 'track');
+                case 'playlist':
+                    return await this.formatSoundCloud(await playdl.soundcloud(title), 'playlist');
+                case 'search':
+                    let result = await playdl.search(title, { source: { soundcloud: 'playlists' }, limit: 1 });
+                    if (result[0]) return await this.formatSoundCloud(result[0], 'playlist');
+                    result = await playdl.search(title, { source: { soundcloud: 'albums' }, limit: 1 });
+                    if (result[0]) return await this.formatSoundCloud(result[0], 'album');
+                    result = await playdl.search(title, { source: { soundcloud: 'tracks' }, limit: 1 });
+                    if (result[0]) return await this.formatSoundCloud(result[0], 'track');
+                    return false;
+                default:
+                    return false;
+            }
+        } else {
+            switch (type) {
+                case 'track':
+                    if (validate == 'track') return await this.formatSoundCloud(await playdl.soundcloud(title), type);
+                    if (validate == 'playlist') return false;
+                    if (validate == 'album') return false;
+                case 'playlist':
+                    if (validate == 'playlist') return await this.formatSoundCloud(await playdl.soundcloud(title), type);
+                    if (validate == 'album') return false;
+                case 'album':
+                    if (validate == 'playlist') return await this.formatSoundCloud(await playdl.soundcloud(title), type);
+                default:
+                    if (validate == 'search') {
+                        if (type == 'track') {
+                            const result = await playdl.search(title, { source: { soundcloud: 'tracks' }, limit: 1 });
+                            if (result[0]) return await this.formatSoundCloud(result[0], type);
+                        } else if (type == 'playlist') {
+                            const result = await playdl.search(title, { source: { soundcloud: 'playlists' }, limit: 1 });
+                            if (result[0]) return await this.formatSoundCloud(result[0], type);
+                        } else if (type == 'album') {
+                            const result = await playdl.search(title, { source: { soundcloud: 'albums' }, limit: 1 });
+                            if (result[0]) return await this.formatSoundCloud(result[0], type);
+                        }
+                    }
+                    return false;
+            }
+        }
+    }
+
+    static async formatSoundCloud(input, type) {
+        try {
+            if (type == 'track') {
+                const result = { data: input, type: 'soundCloudTrack' };
+                result.data.primaryTypeSC = 'track';
+                return result;
+            }
+            if (type == 'playlist') {
+                const result = { data: (await input.fetch()), type: 'soundCloudPlaylist' };
+                result.data.tracks.forEach(element => {
+                    element.origTitleSC = result.data.name;
+                    element.origArtist = result.data.user.name;
+                    element.origArtistUrl = result.data.user.url;
+                    element.primaryTypeSC = result.data.type;
+                });
+                return result;
+            }
+            if (type == 'album') {
+                const result = { data: (await input.fetch()), type: 'soundCloudAlbum' };
+                result.data.tracks.forEach(element => {
+                    element.origTitleSC = result.data.name;
+                    element.origArtist = result.data.user.name;
+                    element.origArtistUrl = result.data.user.url;
+                    element.primaryTypeSC = result.data.type;
+                });
+                return result;
+            }
+            return false;
+        } catch (e) {
+            return false;
+        }
+    }
+
     static async getInfoSpotifyTrack(title) {
         if (playdl.is_expired()) {
             await playdl.refreshToken();
@@ -33,7 +115,11 @@ module.exports = class GetInfo {
         if (playdl.sp_validate(title) == 'track' || playdl.sp_validate(title) ==  'playlist' || playdl.sp_validate(title) ==  'album') {
             try {
                 const resultFromLink = await playdl.spotify(title);
-                return resultFromLink;
+                if (playdl.sp_validate(title) ==  'playlist' || playdl.sp_validate(title) ==  'album') {
+                    return await resultFromLink.fetch();
+                } else {
+                    return resultFromLink;
+                }
             } catch(e) {
                 return false;
             }
