@@ -13,20 +13,31 @@ module.exports ={
             option.setName('трек')
                 .setDescription('ссылка/название трека!')
                 .setRequired(true)),
-    async execute(interaction){
-        const songQueue = require(`${appDir}/vendor/songQueue`);
+    async execute(interaction, args = undefined){
+        const { client } = require(`${appDir}/vendor/client`);
         const guildId = interaction.guild.id;
-        const songName = interaction.options.getString('трек');
-        if (songQueue[guildId].getQueue().length >= 999) {
+        if (args) {
+            var songName = args.join(' ');
+            if (!songName) {
+                interaction.reply('Ваши забыли аргумент!');
+                return true;
+            }
+        } else {
+            var songName = interaction.options.getString('трек');
+        }
+        if (client.queue[guildId].getQueue().length >= 999) {
             await interaction.reply('Очередь переполнена!');
             Logger.log(`Play '${songName}': discard.`, interaction);
             return true;
         }
         var song = await GetInfo.getInfoYouTube(songName);
         if (song.length != 0) {
-            await songQueue[guildId].appendQueue(song[0]);
-            setVoiceConnection(interaction);
-            songQueue[guildId].player.playNewSong(interaction);
+            if(!setVoiceConnection(interaction)) {
+                return true;
+            }
+            await client.queue[guildId].appendQueue(song[0]);
+            client.queue[guildId].player.playNewSong();
+            client.queue[guildId].player.setCurrentVoiceChannelId(interaction.member.voice.channel.id);
             Logger.log(`Play '${songName}': success.`, interaction);
             interaction.reply(`\`\`\`Добавил в очередь: ${song[0].title}\`\`\``);
             return true;
@@ -43,6 +54,7 @@ module.exports ={
                         guildId: interaction.guild.id,
                         adapterCreator: interaction.guild.voiceAdapterCreator,
                     });
+                    return true;
                 } catch (e) {
                     if (e instanceof TypeError) {
                         interaction.reply('А куда играть-то?!');
@@ -54,6 +66,7 @@ module.exports ={
                     }
                 }
             }
+            return true;
         }
 
     }

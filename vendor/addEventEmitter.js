@@ -2,7 +2,7 @@ const fs = require('fs');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
 
-function addEventEmitter (subject) {
+module.exports = function addEventEmitter (subject) {
 	const eventFiles = fs.readdirSync(`${appDir}/events`).filter(file => file.endsWith('.js'));
 	for (const file of eventFiles) {
 		const event = require(`${appDir}/events/${file}`);
@@ -13,5 +13,3 @@ function addEventEmitter (subject) {
 		}
 	}
 }
-
-exports.addEventEmitter = addEventEmitter;

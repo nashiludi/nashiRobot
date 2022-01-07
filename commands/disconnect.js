@@ -12,12 +12,13 @@ module.exports ={
         const { getVoiceConnection } = require('@discordjs/voice');
         const connection = getVoiceConnection(guildId);
         if (connection) {
-            const songQueue = require(`${appDir}/vendor/songQueue`);
-            if (songQueue[guildId].player.getCurrentState() == 'playing') {
-                songQueue[guildId].player.stopPlayer(interaction);
+            const { client } = require(`${appDir}/vendor/client`);
+            if (client.queue[guildId].player.getCurrentState() == 'playing') {
+                client.queue[guildId].player.stopPlayer();
             }
             interaction.reply('Мур!');
             connection.destroy();
+            client.queue[guildId].player.clearCurrentVoiceChannelId();
             Logger.log('Disconnect: success.', interaction);
             return true;
         } else {

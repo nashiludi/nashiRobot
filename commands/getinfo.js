@@ -11,17 +11,21 @@ module.exports ={
             option.setName('номер')
                 .setDescription('номер тречка в очереди!')
                 .setRequired(false)),
-    async execute(interaction){
+    async execute(interaction, args = undefined){
         const guildId = interaction.guild.id;
-        const songQueue = require(`${appDir}/vendor/songQueue`);
-        const queueNumber = interaction.options.getInteger('номер')-1;
+        const { client } = require(`${appDir}/vendor/client`);
+        if (args && args[0]) {
+            var queueNumber = args[0];
+        } else {
+            var queueNumber = interaction.options.getInteger('номер')-1;
+        }
         let shouldShowDuration = false;
-        if (songQueue[guildId].player.getCurrentState() == 'playing') {
-            if (songQueue[guildId].getQueue()[queueNumber]) {
-                var requestedSong = songQueue[guildId].getQueue()[queueNumber];
+        if (client.queue[guildId].player.getCurrentState() == 'playing') {
+            if (client.queue[guildId].getQueue()[queueNumber]) {
+                var requestedSong = client.queue[guildId].getQueue()[queueNumber];
                 if (queueNumber == 0) shouldShowDuration = true;
             } else {
-                var requestedSong = songQueue[guildId].getQueueFirstElement();
+                var requestedSong = client.queue[guildId].getQueueFirstElement();
                 shouldShowDuration = true;
             }
             function getFormattedTime(length1, length2, shouldShowDuration) {
@@ -50,6 +54,17 @@ module.exports ={
                     }
                 }
             }
+            function getViewsFormatted (views) {
+                views = views + '';
+                if (views.length <= 3) return views;
+                let output = views.slice(0, (views.length % 3)) + ' ';
+                if (output.length == 1) output = '';
+                for(let i = output.length-1 > 0 ? output.length-1 : 0;i<views.length;i+=3){
+                    output = output.concat(views.slice(i, i+3)) + ' ';
+                }
+                output = output.slice(0, output.length-1);
+                return output;
+            }
             if (requestedSong.primaryType) {
                 var output =
                     `<${requestedSong.origUrl}}>\n` +
@@ -57,7 +72,7 @@ module.exports ={
                     `<https://youtu.be/${requestedSong.id}>\n` +
                     '```' + `Название: ${requestedSong.origTitle}\n` +
                     `${requestedSong.primaryType == 'track' ? '' : (requestedSong.primaryType == 'album' ? 'Альбом: ' : 'Плейлист: ') + requestedSong.primaryTitle + '\n'}` +
-                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(client.queue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
                     `${requestedSong.origArtist ? 'Исполнитель: ' + requestedSong.origArtist + '\n' : ''}`;
                     if (requestedSong.primaryType) output = output.concat(`${requestedSong.primaryType == 'track' ? '' : 'Автор: ' + requestedSong.primaryArtist + '\n'}`);
             } else if (requestedSong.name) {
@@ -66,19 +81,18 @@ module.exports ={
                     (requestedSong.user.url ? `<${requestedSong.user.url}>\n` : '') +
                     '```' + `Название: ${requestedSong.name}\n` +
                     `${requestedSong.primaryTypeSC == 'track' ? '' : (requestedSong.primaryTypeSC == 'album' ? 'Альбом: ' : 'Плейлист: ') + requestedSong.origTitleSC + '\n'}` +
-                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(client.queue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
                     (requestedSong.user.name ? `Исполнитель: ${requestedSong.user.name}\n` : '') +
                     (requestedSong.origArtist ? `Автор: ${requestedSong.origArtist}\n` : '');
             } else {
                 var output =
                     `<https://youtu.be/${requestedSong.id}>\n` +
                     '```' + `Название: ${requestedSong.title}\n` +
-                    `Длительность: ${getFormattedTime(Math.floor(songQueue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
+                    `Длительность: ${getFormattedTime(Math.floor(client.queue[guildId].player.getPlayer()._state.playbackDuration / 1000), requestedSong.durationInSec, shouldShowDuration)}\n` +
                     `Автор: ${requestedSong.channel.name}\n` +
-                    `Просмотров: ${requestedSong.views}\n` +
-                    `Описание:\n`;
-                if (requestedSong.description.length > 0) {
-                    output = output.concat(`${requestedSong.description.length <= 1000 ? requestedSong.description : requestedSong.description.substring(0, 1000).concat('...')}\n`);
+                    `Просмотров: ${getViewsFormatted(requestedSong.views)}\n`;
+                if (requestedSong.description?.length > 0) {
+                    output = output.concat(`Описание: ${requestedSong.description.length <= 1000 ? requestedSong.description : requestedSong.description.substring(0, 1000).concat('...')}\n`);
                 }
             }
             output = output.concat('```');

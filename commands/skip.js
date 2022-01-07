@@ -8,11 +8,11 @@ module.exports ={
         .setDescription('Пропустить музон'),
     async execute(interaction){
         const guildId = interaction.guild.id;
-        const songQueue = require(`${appDir}/vendor/songQueue`);
+        const { client } = require(`${appDir}/vendor/client`);
         const { getVoiceConnection } = require('@discordjs/voice');
         const connection = getVoiceConnection(guildId);
-        if (songQueue[guildId].player.getCurrentState() == 'playing') {
-            songQueue[guildId].player.skipSong(interaction);
+        if (client.queue[guildId].player.getCurrentState() == 'playing') {
+            client.queue[guildId].player.skipSong();
             interaction.reply('Мур!');
         } else {
             interaction.reply('Мур! Чё надо? Мямяу!');

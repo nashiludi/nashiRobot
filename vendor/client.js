@@ -1,8 +1,8 @@
 const { Client, Intents } = require('discord.js');
 const { dirname } = require('path');
 const appDir = dirname(require.main.filename);
-const { addEventEmitter } = require(`${appDir}/vendor/addEventEmitter`);
-const { addCommands } = require(`${appDir}/vendor/addCommands`);
+const addEventEmitter = require(`${appDir}/vendor/addEventEmitter`);
+const addCommands = require(`${appDir}/vendor/addCommands`);
 
 const client = new Client({ 
     intents: [

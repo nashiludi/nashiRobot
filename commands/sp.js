@@ -13,11 +13,19 @@ module.exports = {
             option.setName('трек')
                 .setDescription('ссылка/название трека!')
                 .setRequired(true)),
-	async execute(interaction) {
-        const songQueue = require(`${appDir}/vendor/songQueue`);
+	async execute(interaction, args = undefined) {
+        const { client } = require(`${appDir}/vendor/client`);
         const guildId = interaction.guild.id;
-        const songName = interaction.options.getString('трек');
-        if (songQueue[guildId].getQueue().length >= 999) {
+        if (args) {
+            var songName = args.join(' ');
+            if (!songName) {
+                interaction.reply('Ваши забыли аргумент!');
+                return true;
+            }
+        } else {
+            var songName = interaction.options.getString('трек');
+        }
+        if (client.queue[guildId].getQueue().length >= 999) {
             interaction.reply('Очередь переполнена!');
             Logger.log(`Play '${songName}': discard.`, interaction);
             return true;
@@ -28,13 +36,13 @@ module.exports = {
             let interactionReplyText;
             if (song.type == 'track') {
                 interactionReplyText = `\`\`\`Добавил в очередь: ${song.data.origTitle}\`\`\``;
-                await songQueue[guildId].appendQueue(song.data);
+                await client.queue[guildId].appendQueue(song.data);
             } else if (song.type == 'playlist' || song.type == 'album') {
                 interactionReplyText = `\`\`\`Добавил в очередь: ${song.data[0].primaryTitle}\`\`\``;
-                await songQueue[guildId].appendQueueWithArray(song.data);
+                await client.queue[guildId].appendQueueWithArray(song.data);
             }
             setVoiceConnection(interaction);
-            songQueue[guildId].player.playNewSong(interaction);
+            client.queue[guildId].player.playNewSong();
             Logger.log(`Play '${songName}': success.`, interaction);
             interaction.channel.send(interactionReplyText);
             return true;

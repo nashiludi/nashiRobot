@@ -12,19 +12,22 @@ module.exports ={
             option.setName('параметры')
                 .setDescription('параметры команды')
                 .setRequired(false)),
-    async execute(interaction){
-        const songQueue = require(`${appDir}/vendor/songQueue`);
+    async execute(interaction, args = undefined){
+        const { client } = require(`${appDir}/vendor/client`);
         var guildId = interaction.guild.id;
-        if (songQueue[guildId].getQueue().length == 0) {
+        if (client.queue[guildId].getQueue().length == 0) {
             interaction.reply('Очередь пуста!');
             return true;
         }
-        var args = Args.getArgsForQueue(interaction.options.getString('параметры'));
-
-        args.forEach(arg => {
+        if (args && args[0]) {
+            var argsForQueue = Args.getArgsForQueue(args[0]);
+        } else {
+            var argsForQueue = Args.getArgsForQueue(interaction.options.getString('параметры'));
+        }
+        argsForQueue.forEach(arg => {
             switch (arg) {
                 case 'd':
-                    displayQueue(songQueue[guildId].getQueue());
+                    displayQueue(client.queue[guildId].getQueue());
                     break;
                 // case 'c':
                 //     clearQueue(songQueue);
@@ -74,7 +77,7 @@ module.exports ={
         }
 
         // async function clearQueue(songQueue) {
-        //     songQueue[guildId].clearQueue();
+        //     client.queue[guildId].clearQueue();
         //     await interaction.channel.send('Чистенько!');
         //     return true;
         // }

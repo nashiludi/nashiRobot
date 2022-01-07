@@ -10,9 +10,9 @@ module.exports = class Logger {
         let hour = ("0" + currentDate.getHours()).slice(-2);
         let min = ("0" + currentDate.getMinutes()).slice(-2);
         let sec = ("0" + currentDate.getSeconds()).slice(-2);
-        return interaction === null ?
-            `[${hour}:${min}:${sec}]` :
-            `[${hour}:${min}:${sec}] '${interaction.guild.name}', ${interaction.user.username}:`;
+        if(interaction!=null && interaction.user !== undefined) return `[${hour}:${min}:${sec}] '${interaction.guild.name}', ${interaction.user?.username}:`;
+        if(interaction!=null && interaction.author !== undefined) return `[${hour}:${min}:${sec}] '${interaction.guild.name}', ${interaction.author?.username}:`;
+        return `[${hour}:${min}:${sec}]`;
     }
 
     static _LogInfo(info, interaction = null) {

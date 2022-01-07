@@ -9,11 +9,11 @@ module.exports ={
         .setDescription('Закончить концерт'),
     async execute(interaction){
         const guildId = interaction.guild.id;
-        const songQueue = require(`${appDir}/vendor/songQueue`);
+        const { client } = require(`${appDir}/vendor/client`);
         const { getVoiceConnection } = require('@discordjs/voice');
         const connection = getVoiceConnection(interaction.guild.id);
-        if (songQueue[guildId].player.getCurrentState() == 'playing') {
-            songQueue[guildId].player.stopPlayer(interaction);
+        if (client.queue[guildId].player.getCurrentState() == 'playing') {
+            client.queue[guildId].player.stopPlayer();
             interaction.reply('Мур!');
             Logger.log('Stop: success.', interaction);
         } else {
