@@ -14,6 +14,10 @@ module.exports ={
                 .setDescription('ссылка/название трека!')
                 .setRequired(true)),
     async execute(interaction, args = undefined){
+        if(!interaction.member?.voice?.channel?.id) {
+            interaction.reply('Ты ебаклак?!');
+            return true;
+        }
         const { client } = require(`${appDir}/vendor/client`);
         const guildId = interaction.guild.id;
         if (args) {

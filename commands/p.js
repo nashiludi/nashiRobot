@@ -14,6 +14,10 @@ module.exports ={
                 .setDescription('ссылка/название трека!')
                 .setRequired(true)),
     async execute(interaction, args = undefined){
+        if(!interaction.member?.voice?.channel?.id) {
+            interaction.reply('Ты ебаклак?!');
+            return true;
+        }
         const { client } = require(`${appDir}/vendor/client`);
         const guildId = interaction.guild.id;
         if (args) {
@@ -32,9 +36,12 @@ module.exports ={
         }
         var song = await GetInfo.getInfoYouTube(songName);
         if (song.length != 0) {
+            if(!setVoiceConnection(interaction)) {
+                return true;
+            }
             await client.queue[guildId].appendQueue(song[0]);
-            setVoiceConnection(interaction);
-            client.queue[guildId].player.playNewSong(interaction);
+            client.queue[guildId].player.playNewSong();
+            client.queue[guildId].player.setCurrentVoiceChannelId(interaction.member.voice.channel.id);
             Logger.log(`Play '${songName}': success.`, interaction);
             interaction.reply(`\`\`\`Добавил в очередь: ${song[0].title}\`\`\``);
             return true;
@@ -51,6 +58,7 @@ module.exports ={
                         guildId: interaction.guild.id,
                         adapterCreator: interaction.guild.voiceAdapterCreator,
                     });
+                    return true;
                 } catch (e) {
                     if (e instanceof TypeError) {
                         interaction.reply('А куда играть-то?!');
@@ -62,6 +70,7 @@ module.exports ={
                     }
                 }
             }
+            return true;
         }
 
     }
