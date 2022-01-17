@@ -51,9 +51,10 @@ module.exports ={
             return true;
         }
         function setVoiceConnection(interaction){
-            if (!getVoiceConnection(interaction.guild.id)) {
+            const connection = getVoiceConnection(interaction.guild.id);
+            if (!connection) {
                 try {
-                    var connection = joinVoiceChannel({
+                    joinVoiceChannel({
                         channelId: interaction.member.voice.channel.id,
                         guildId: interaction.guild.id,
                         adapterCreator: interaction.guild.voiceAdapterCreator,
@@ -63,13 +64,18 @@ module.exports ={
                     if (e instanceof TypeError) {
                         interaction.reply('А куда играть-то?!');
                         Logger.log('Play: failure.', interaction);
-                        return false;
+                        return true;
                     } else {
                         Logger.error(e, interaction)
                         return false;
                     }
                 }
-            }
+            } else if (connection.joinConfig.channelId != interaction.member.voice.channel.id) {
+                    client.queue[guildId].player.stopPlayer();
+                    connection.destroy();
+                    client.queue[guildId].player.clearCurrentVoiceChannelId();
+                    setVoiceConnection(interaction);
+                }
             return true;
         }
 
