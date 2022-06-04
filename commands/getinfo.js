@@ -11,12 +11,12 @@ module.exports ={
             option.setName('номер')
                 .setDescription('номер тречка в очереди!')
                 .setRequired(false)),
-    async execute(interaction, args = undefined){
+    async execute(interaction, info){
         const guildId = interaction.guild.id;
         const { client } = require(`${appDir}/vendor/client`);
-        if (args && args[0]) {
-            var queueNumber = args[0];
-        } else {
+        if (info.type == 'message' && info.args && info.args[0]) {
+            var queueNumber = info.args[0]-1;
+        } else if (info.type == 'interaction') {
             var queueNumber = interaction.options.getInteger('номер')-1;
         }
         let shouldShowDuration = false;

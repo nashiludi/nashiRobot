@@ -92,6 +92,7 @@ module.exports = class Player {
             try {
                 var stream = await playdl.stream(url);
             } catch (e) {
+                console.error(e);
                 this.stopPlayer();
                 // interaction.channel.send('Ошибка! Иванов потерял паспорт и не может воспроизвести песню для взрослых и жителей других стран! Напомните ему завести новый!');
                 Logger.error('PlayNewSong - ' + e);

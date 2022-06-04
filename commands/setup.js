@@ -10,16 +10,19 @@ module.exports = {
             option.setName('просьба')
                 .setDescription('i - сменить способ ввода команд')
                 .setRequired(true)),
-	async execute(interaction, args = undefined) {
+	async execute(interaction, info) {
         const { client } = require(`${appDir}/vendor/client`);
-        if (args) {
-            var request = args[0];
-            if (!request) {
+        if (info.type == 'message') {
+            if (!info.args) {
                 interaction.reply('Ваши забыли аргумент!');
                 return true;
             }
-        } else {
+            var request = info.args[0];
+        } else if (info.type == 'interaction') {
             var request = interaction.options.getString('просьба');
+        } else {
+            interaction.reply('???');
+            return false;
         }
         switch (request) {
             case 'i':

@@ -7,11 +7,11 @@ const { queuesSetup, serversSetup } = require(`${appDir}/vendor/setup`);
 module.exports = {
     name: 'ready',
     once: true,
-    execute(client) {
+    async execute(client) {
         Logger.log(`Наши в космосе! Зашли по кличке ${client.user.tag}`);
         const guilds = client.guilds.cache.map(guild => guild.id);
         deployCommands(guilds);
         queuesSetup(client);
-        serversSetup(client);
+        await serversSetup(client);
     },
 };

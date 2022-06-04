@@ -17,11 +17,17 @@ module.exports = {
             option.setName('тип')
                 .setDescription('track (t) / playlist (p) / album (a)')
                 .setRequired(false)),
-	async execute(interaction, args = undefined) {
+	async execute(interaction, info) {
         const { client } = require(`${appDir}/vendor/client`);
         const guildId = interaction.guild.id;
-        if (args) {
-            var songName = args.join(' ');
+        if (info.type == 'message') {
+            if (!info.args) {
+                interaction.reply('Ваши забыли аргумент!');
+                return true;
+            }
+        }
+        if (info.args) {
+            var songName = info.args.join(' ');
             if (!songName) {
                 interaction.reply('Ваши забыли аргумент!');
                 return true;
@@ -31,7 +37,7 @@ module.exports = {
         }
         let primaryType;
         let type;
-        if (!args) {
+        if (!info.args) {
             if (interaction.options.getString('тип')) {
                 primaryType = interaction.options.getString('тип').slice(0, 1) == 't' ||
                     interaction.options.getString('тип').slice(0, 1) == 'p' ||

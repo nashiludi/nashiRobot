@@ -13,15 +13,21 @@ module.exports ={
             option.setName('трек')
                 .setDescription('ссылка/название трека!')
                 .setRequired(true)),
-    async execute(interaction, args = undefined){
+    async execute(interaction, info){
         if(!interaction.member?.voice?.channel?.id) {
             interaction.reply('Ты ебаклак?!');
             return true;
         }
         const { client } = require(`${appDir}/vendor/client`);
         const guildId = interaction.guild.id;
-        if (args) {
-            var songName = args.join(' ');
+        if (info.type == 'message') {
+            if (!info.args) {
+                interaction.reply('Ваши забыли аргумент!');
+                return true;
+            }
+        }
+        if (info.args) {
+            var songName = info.args.join(' ');
             if (!songName) {
                 interaction.reply('Ваши забыли аргумент!');
                 return true;

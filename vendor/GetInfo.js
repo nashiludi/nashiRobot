@@ -7,6 +7,12 @@ module.exports = class GetInfo {
     }
 
     static async getInfoSoundCloud(title, type = false) {
+        const freeClientId = await playdl.getFreeClientID();
+        await playdl.setToken({
+            soundcloud : {
+                client_id : freeClientId
+            }
+        });
         const validate = await playdl.so_validate(title);
         if (!type) {
             switch (validate) {
